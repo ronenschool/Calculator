@@ -11,11 +11,11 @@ public partial class Calculator : ContentPage
         InitializeComponent();
     }
 
-    private void EvaluateArr(bool RespectOrderOfOperations)
+    private int EvaluateArr(bool RespectOrderOfOperations)
     {
         if (RespectOrderOfOperations == true)
         {
-            return;
+            return 0;
         }
 
         while (true)
@@ -63,11 +63,16 @@ public partial class Calculator : ContentPage
                 break;
             }
 
-            Replace(end);
+            int assert = Replace(end);
+            if (assert == 0)
+            {
+               return 0;
+            }
         }
+        return 1;
     }
 
-    private void Replace(int count)
+    private int Replace(int count)
     {
         int operatorPos = 0;
 
@@ -82,7 +87,7 @@ public partial class Calculator : ContentPage
 
         if (operatorPos == 0)
         {
-            return;
+            return 1;
         }
 
         long first = long.Parse(new string(mainarr, 1, operatorPos - 1));
@@ -108,23 +113,21 @@ public partial class Calculator : ContentPage
             case '/':
                 if (second == 0)
                 {
-                    lblResult.Text = "ERORO dont divide by zero";
-                    return;
+                    return 0;
                 }
 
                 result = first / second;
                 break;
 
             default:
-                return;
+                return 1;
         }
 
         string remaining = "";
 
         if (count <= index)
         {
-            remaining = new string(
-                mainarr, count, index - count + 1);
+            remaining = new string( mainarr, count, index - count + 1);
         }
 
         string expression = result.ToString() + remaining;
@@ -137,6 +140,8 @@ public partial class Calculator : ContentPage
         }
 
         index = expression.Length;
+
+        return 1;
     }
 
     private void DrawResult()
@@ -152,6 +157,13 @@ public partial class Calculator : ContentPage
 
         string value = button.Text;
 
+        if (lblResult.Text == "ERORO cant divide by zero")
+        {
+            index = 0;
+            Array.Clear(mainarr, 0, mainarr.Length);
+            lblResult.Text = "";
+        }
+
         if (value == "ac")
         {
             index = 0;
@@ -162,8 +174,17 @@ public partial class Calculator : ContentPage
 
         if (value == "=")
         {
+            if (mainarr[index] == '+' || mainarr[index] == '-' || mainarr[index] == '*' || mainarr[index] == '/')
+            {
+                return;
+            }
             bool RespectOrderOfOperations = false;
-            EvaluateArr(RespectOrderOfOperations);
+            int assert = EvaluateArr(RespectOrderOfOperations);
+            if (assert == 0)
+            {
+                lblResult.Text = "ERORO cant divide by zero";
+                return;
+            }
             DrawResult();
             return;
         }
